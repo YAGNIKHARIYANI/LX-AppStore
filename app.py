@@ -1,4 +1,4 @@
-﻿import os
+import os
 import io
 import re
 import struct
@@ -371,7 +371,7 @@ def get_home_feed():
         res_pop = requests.get(url_pop, params=p_pop, headers=get_apkpure_headers(), timeout=12)
         popular_apps = extract_apps_from_stream(res_pop.content)
 
-        return jsonify({
+        resp = jsonify({
             "success": 1,
             "data": {
                 "top_apps": top_apps[:16],
@@ -379,6 +379,8 @@ def get_home_feed():
                 "popular_apps": popular_apps[:16]
             }
         })
+        resp.headers["Cache-Control"] = "public, max-age=600, s-maxage=3600, stale-while-revalidate=86400"
+        return resp
     except Exception as e:
         return jsonify({"success": 0, "error": str(e)}), 500
 
@@ -458,7 +460,9 @@ def get_categories():
         {"id": "personalization", "name": "Personalization", "icon": "fa-palette", "color": "#14b8a6"},
         {"id": "news", "name": "News & Magazines", "icon": "fa-newspaper", "color": "#6366f1"}
     ]
-    return jsonify({"success": 1, "data": categories})
+    resp = jsonify({"success": 1, "data": categories})
+    resp.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
+    return resp
 
 @app.route("/api/category/<cat_id>/apps", methods=["GET"])
 def get_category_apps(cat_id: str):
@@ -470,11 +474,12 @@ def get_category_apps(cat_id: str):
     except Exception as e:
         return jsonify({"success": 0, "error": str(e)}), 500
 
-# ----------------- Robust APK/XAPK Download Endpoints -----------------
+# ----------------- Zero-Bandwidth Direct CDN Download Endpoints -----------------
 
 @app.route("/api/download/file", methods=["GET"])
 def download_file_direct():
-    """Direct APK/XAPK file download stream with guaranteed attachment header."""
+    """Resolves authentic direct CDN download URL and redirects browser directly.
+    Transfers ~0.002 MB instead of 100-500 MB per download, saving 99.99% Vercel bandwidth."""
     pkg = request.args.get("package_name", "").strip()
     if not pkg:
         return jsonify({"success": 0, "error": "Parameter 'package_name' is required"}), 400
@@ -484,25 +489,9 @@ def download_file_direct():
         if not dl_url:
             return jsonify({"success": 0, "error": "Download URL not available for this app"}), 404
 
-        req = requests.get(dl_url, headers={"User-Agent": "Mozilla/5.0"}, stream=True, timeout=25)
-        if req.status_code == 200:
-            content_type = "application/vnd.android.package-archive" if ftype == "apk" else "application/octet-stream"
-            headers = {
-                "Content-Disposition": f'attachment; filename="{filename}"',
-                "Content-Type": content_type
-            }
-            if size > 0:
-                headers["Content-Length"] = str(size)
-            elif req.headers.get("Content-Length"):
-                headers["Content-Length"] = req.headers["Content-Length"]
-
-            return Response(
-                stream_with_context(req.iter_content(chunk_size=131072)),
-                headers=headers,
-                status=200
-            )
-        else:
-            return redirect(dl_url, code=302)
+        # Direct 302 Redirect to upstream CDN:
+        # Bypasses Vercel Serverless Function egress completely!
+        return redirect(dl_url, code=302)
     except Exception as e:
         return jsonify({"success": 0, "error": str(e)}), 500
 
@@ -524,31 +513,12 @@ def direct_download_redirect():
 
 @app.route("/api/download/stream", methods=["GET"])
 def stream_custom_url():
-    """Proxy stream for any valid CDN URL."""
+    """Redirects directly to external CDN URL (0 Vercel bandwidth)."""
     dl_url = request.args.get("url", "").strip()
-    filename = request.args.get("filename", "app.apk").strip()
     if not dl_url:
         return jsonify({"success": 0, "error": "Parameter 'url' is required"}), 400
 
-    try:
-        req = requests.get(dl_url, headers={"User-Agent": "Mozilla/5.0"}, stream=True, timeout=25)
-        if req.status_code == 200:
-            headers = {
-                "Content-Disposition": f'attachment; filename="{urllib.parse.quote(filename)}"',
-                "Content-Type": req.headers.get("Content-Type", "application/octet-stream")
-            }
-            if req.headers.get("Content-Length"):
-                headers["Content-Length"] = req.headers["Content-Length"]
-
-            return Response(
-                stream_with_context(req.iter_content(chunk_size=131072)),
-                headers=headers,
-                status=200
-            )
-        else:
-            return redirect(dl_url, code=302)
-    except Exception as e:
-        return redirect(dl_url, code=302)
+    return redirect(dl_url, code=302)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
