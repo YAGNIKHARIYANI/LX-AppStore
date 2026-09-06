@@ -1,0 +1,179 @@
+{
+  "project": "LX APP STORE",
+  "version": "1.0.0",
+  "author": [
+    "Yagnik Hariyani",
+    "Vaidehi Hariyani"
+  ],
+  "endpoints": {
+    "local_server_endpoints": [
+      {
+        "name": "Local Curated Home Feed API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/home",
+        "example": "http://localhost:5000/api/home",
+        "description": "Fetches curated home feed apps categorized into Top Apps, New Releases, and Popular Discoveries."
+      },
+      {
+        "name": "Local Search Apps API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/search?q={query}",
+        "example": "http://localhost:5000/api/search?q=capcut",
+        "description": "Searches the application repository and upstream index for apps and games matching the query."
+      },
+      {
+        "name": "Local App Details API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/app/detail?package_name={package_name}",
+        "example": "http://localhost:5000/api/app/detail?package_name=com.instagram.android",
+        "description": "Retrieves comprehensive app metadata, developer verification, ratings, screenshots, file size, package specs, and asset tokens."
+      },
+      {
+        "name": "Local Version History API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/app/versions?package_name={package_name}",
+        "example": "http://localhost:5000/api/app/versions?package_name=com.whatsapp",
+        "description": "Fetches past build versions, release dates, and previous version codes for version rollbacks."
+      },
+      {
+        "name": "Local Categories List API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/categories",
+        "example": "http://localhost:5000/api/categories",
+        "description": "Lists all 10 curated application and game categories with FontAwesome icons and theme accents."
+      },
+      {
+        "name": "Local Category Apps Feed API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/category/{cat_id}/apps",
+        "example": "http://localhost:5000/api/category/game/apps",
+        "description": "Fetches top trending apps and games filtered by specific category ID (e.g., game, action, social, tools)."
+      },
+      {
+        "name": "Local Direct APK/XAPK Download Stream",
+        "method": "GET",
+        "url": "http://localhost:5000/api/download/file?package_name={package_name}",
+        "example": "http://localhost:5000/api/download/file?package_name=com.zhiliaoapp.musically",
+        "description": "Directly streams the verified APK or XAPK binary file with automated Content-Disposition attachment headers."
+      },
+      {
+        "name": "Local Direct CDN Redirect API",
+        "method": "GET",
+        "url": "http://localhost:5000/api/download/direct?package_name={package_name}",
+        "example": "http://localhost:5000/api/download/direct?package_name=com.instagram.android",
+        "description": "Resolves the authentic CDN URL for the requested package and issues an HTTP 302 redirect for browser downloading."
+      },
+      {
+        "name": "Local Custom CDN URL Proxy Stream",
+        "method": "GET",
+        "url": "http://localhost:5000/api/download/stream?url={cdn_url}&filename={filename}",
+        "example": "http://localhost:5000/api/download/stream?url=https%3A%2F%2Fdownload.winudf.com%2F...&filename=app.apk",
+        "description": "Proxies chunked download stream from verified external CDN mirrors."
+      }
+    ],
+    "vercel_cloud_endpoints": [
+      {
+        "name": "Production Serverless Home Feed API",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/home",
+        "example": "https://lxappstore.vercel.app/api/home",
+        "description": "Vercel Python serverless function that unwraps dynamic home feed sections (Most Downloaded, New Releases, Popular Discoveries)."
+      },
+      {
+        "name": "Production Serverless Search API",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/search?q={query}",
+        "example": "https://lxappstore.vercel.app/api/search?q=capcut",
+        "description": "Live production search endpoint returning real-time query results with instant ratings and icon previews."
+      },
+      {
+        "name": "Production Serverless App Detail API",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/app/detail?package_name={package_name}",
+        "example": "https://lxappstore.vercel.app/api/app/detail?package_name=com.instagram.android",
+        "description": "Production metadata parser delivering descriptions, specs, developer data, and screenshots gallery."
+      },
+      {
+        "name": "Production Serverless Versions API",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/app/versions?package_name={package_name}",
+        "example": "https://lxappstore.vercel.app/api/app/versions?package_name=com.whatsapp",
+        "description": "Production archive of historical versions and architecture binaries."
+      },
+      {
+        "name": "Production Serverless Categories List",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/categories",
+        "example": "https://lxappstore.vercel.app/api/categories",
+        "description": "Provides the complete list of application categories, badges, and icons on production."
+      },
+      {
+        "name": "Production Serverless Category Apps API",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/category/{cat_id}/apps",
+        "example": "https://lxappstore.vercel.app/api/category/game/apps",
+        "description": "Returns categorized application feeds on production."
+      },
+      {
+        "name": "Production Serverless Download Resolver",
+        "method": "GET",
+        "url": "https://lxappstore.vercel.app/api/download/file?package_name={package_name}",
+        "example": "https://lxappstore.vercel.app/api/download/file?package_name=com.zhiliaoapp.musically",
+        "description": "Production download gateway that resolves signed asset tokens and redirects to high-speed CDN servers."
+      }
+    ],
+    "upstream_live_sources": [
+      {
+        "name": "APKPure Aegon v3 Protocol Gateway",
+        "method": "GET / Protobuf Wire",
+        "url": "https://api.pureapk.com/m/v3",
+        "description": "Primary authentic upstream API gateway using dynamic MD5 salt signatures and Aegon protocol tokens."
+      },
+      {
+        "name": "Upstream Search & Discovery Query Feed",
+        "method": "GET",
+        "url": "https://api.pureapk.com/m/v3/cms/search_query?key={key}&hl=en&k={signature}",
+        "example": "https://api.pureapk.com/m/v3/cms/search_query?key=top",
+        "description": "Upstream feed queried for keyword searches, top trending apps, and category listings."
+      },
+      {
+        "name": "Upstream App Detail & Asset Resolver",
+        "method": "GET",
+        "url": "https://api.pureapk.com/m/v3/app/detail?package_name={package_name}&hl=en&k={signature}",
+        "example": "https://api.pureapk.com/m/v3/app/detail?package_name=com.instagram.android",
+        "description": "Resolves raw protobuf manifests containing official download URLs, SHA-1 checksums, and graphic assets."
+      },
+      {
+        "name": "Upstream Version History Archive",
+        "method": "GET",
+        "url": "https://api.pureapk.com/m/v3/cms/app_version?package_name={package_name}&hl=en&k={signature}",
+        "example": "https://api.pureapk.com/m/v3/cms/app_version?package_name=com.whatsapp",
+        "description": "Retrieves historical version records, build numbers, and architecture variants."
+      },
+      {
+        "name": "WinUDF Image & Screenshot CDN",
+        "method": "GET",
+        "url": "https://image.winudf.com/v2/image1/{image_id}",
+        "description": "High-performance CDN mirror providing official application icons, featured banners, and screenshots."
+      },
+      {
+        "name": "WinUDF APK / XAPK Package CDN Mirror",
+        "method": "GET",
+        "url": "https://download.winudf.com/{asset_path}",
+        "description": "High-speed direct file delivery network for full APK and multi-split XAPK packages."
+      }
+    ],
+    "category_identifiers_dictionary": {
+      "game": "Games (Action, Arcade, RPG, Strategy, Casual)",
+      "action": "Action Games & Fast-Paced Combat",
+      "arcade": "Arcade Games & Classic Retro Hits",
+      "social": "Social Media, Messaging & Community Platforms",
+      "communication": "Chat, Calling, Email & Video Conferencing",
+      "tools": "Utility Tools, File Managers & Device Optimization",
+      "productivity": "Work, Notes, Cloud Storage & Office Suites",
+      "multimedia": "Video Players, Photo Editors & Streaming Services",
+      "personalization": "Wallpapers, Themes, Launchers & Custom Icons",
+      "news": "News, Magazines, RSS Readers & Periodicals"
+    }
+  }
+}
