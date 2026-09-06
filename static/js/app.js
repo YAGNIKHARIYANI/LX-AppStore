@@ -633,35 +633,49 @@ function closeAppModal() {
   document.getElementById('appModal').classList.add('hidden');
 }
 
-// Guaranteed 100% Reliable File Download Trigger
+// Reliable Single File Download Trigger with Rapid Tap Protection
+let lastDownloadPkg = '';
+let lastDownloadTime = 0;
+
 function triggerDownload(packageName, encodedTitle) {
+  const now = Date.now();
+  if (lastDownloadPkg === packageName && (now - lastDownloadTime) < 2500) {
+    // Prevent duplicate downloads from accidental double taps
+    return;
+  }
+  lastDownloadPkg = packageName;
+  lastDownloadTime = now;
+
   const title = decodeURIComponent(encodedTitle || 'Application');
   showToast(`Starting download for ${title}...`);
   showDownloadBanner(title, packageName);
 
   const downloadUrl = `/api/download/file?package_name=${encodeURIComponent(packageName)}`;
 
-  // 1. Trigger download via hidden iframe (does not navigate away or close modals)
-  let ifr = document.getElementById('lx_dl_iframe');
-  if (!ifr) {
-    ifr = document.createElement('iframe');
-    ifr.id = 'lx_dl_iframe';
-    ifr.style.display = 'none';
-    document.body.appendChild(ifr);
-  }
-  ifr.src = downloadUrl;
-
-  // 2. Secondary fallback via invisible anchor
+  // Single clean download trigger via invisible anchor element
   const a = document.createElement('a');
   a.href = downloadUrl;
-  a.download = '';
   a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  setTimeout(() => {
+    if (a.parentNode) {
+      a.parentNode.removeChild(a);
+    }
+  }, 1000);
 }
 
+let lastDirectDownloadUrl = '';
+let lastDirectDownloadTime = 0;
+
 function downloadDirectUrl(url, filename) {
+  const now = Date.now();
+  if (lastDirectDownloadUrl === url && (now - lastDirectDownloadTime) < 2500) {
+    return;
+  }
+  lastDirectDownloadUrl = url;
+  lastDirectDownloadTime = now;
+
   showToast(`Starting file download...`);
   const a = document.createElement('a');
   a.href = `/api/download/stream?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || 'app.apk')}`;
@@ -669,8 +683,13 @@ function downloadDirectUrl(url, filename) {
   a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  setTimeout(() => {
+    if (a.parentNode) {
+      a.parentNode.removeChild(a);
+    }
+  }, 1000);
 }
+
 
 // Version History Modal
 async function openVersionsModal(packageName, encodedTitle) {
